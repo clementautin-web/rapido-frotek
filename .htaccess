@@ -1,0 +1,25 @@
+# FROTEK — réglages du serveur OVH (Apache)
+# 1) Toujours en https (obligatoire pour l'installation, la localisation et le mode hors connexion)
+RewriteEngine On
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# 2) Types de fichiers
+AddType application/manifest+json .webmanifest
+AddType application/javascript .js
+
+# 3) Compression : l'outil passe d'environ 3 Mo à environ 1 Mo à chaque chargement
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json application/manifest+json
+</IfModule>
+
+# 4) Mises à jour : la page et le service hors connexion sont toujours vérifiés ; les icônes sont gardées 30 jours
+<IfModule mod_headers.c>
+  <FilesMatch "^(index\.html|sw\.js|manifest\.webmanifest)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  <FilesMatch "\.png$">
+    Header set Cache-Control "public, max-age=2592000"
+  </FilesMatch>
+</IfModule>
